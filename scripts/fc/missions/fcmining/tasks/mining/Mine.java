@@ -22,6 +22,7 @@ import org.tribot.api2007.types.RSMenuNode;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.types.RSObjectDefinition;
 
+import scripts.fc.api.abc.PersistantABCUtil;
 import scripts.fc.api.generic.FCConditions;
 import scripts.fc.api.generic.FCFilters;
 import scripts.fc.api.interaction.impl.objects.ClickObject;
@@ -29,6 +30,7 @@ import scripts.fc.api.skills.GatheringMode;
 import scripts.fc.api.skills.mining.MiningUtils;
 import scripts.fc.api.skills.mining.data.Pickaxe;
 import scripts.fc.api.utils.Utils;
+import scripts.fc.framework.data.Vars;
 import scripts.fc.framework.task.Task;
 import scripts.fc.missions.fcmining.FCMining;
 
@@ -75,7 +77,7 @@ public class Mine extends Task
 				currentMiningActionStart = Timing.currentTimeMillis();
 				
 				//successfully clicked ore, generate ABC2 tracker info
-				script.fcScript.abc2.generateTrackers(getEstimatedWait());
+				abc2().generateTrackers(getEstimatedWait());
 				resetAbc();
 			}
 			else
@@ -115,6 +117,11 @@ public class Mine extends Task
 		totalMiningTime = 0;
 	}
 	
+	private PersistantABCUtil abc2()
+	{
+		return (PersistantABCUtil)Vars.get().get("abc2");
+	}
+	
 	private int getEstimatedWait()
 	{
 		return totalMiningCount > 0 ? (int)Math.round(((double)totalMiningTime / totalMiningCount)) : ESTIMATED_MINING_TIME;
@@ -122,7 +129,7 @@ public class Mine extends Task
 	
 	private void hoverNextRock()
 	{
-		if(Inventory.getAll().length < 27 && currentRock != null && script.fcScript.abc2.shouldHover())
+		if(Inventory.getAll().length < 27 && currentRock != null && abc2().shouldHover())
 		{
 			for(RSObject o : script.ROCK_FINDER.getRocks())
 			{
@@ -131,7 +138,7 @@ public class Mine extends Task
 					hoveredNext = o.hover();
 					RSObjectDefinition def = o.getDefinition();
 					
-					if(hoveredNext && script.fcScript.abc2.shouldOpenMenu() && def != null && Game.isUptext(def.getName()))
+					if(hoveredNext && abc2().shouldOpenMenu() && def != null && Game.isUptext(def.getName()))
 					{
 						General.println("Open menu");
 						Mouse.click(3);
@@ -163,13 +170,13 @@ public class Mine extends Task
 		if(script.isUsingAbc && script.needsAbcDelay && script.ROCK_FINDER.getRocks().length > 0)
 		{
 			final int EST_WAIT = getEstimatedWait();
-			final int REACTION_TIME = script.fcScript.abc2.generateReactionTime(EST_WAIT);
+			final int REACTION_TIME = abc2().generateReactionTime(EST_WAIT);
 			General.println("EST WAIT: " + EST_WAIT + ", REACTION TIME: " + REACTION_TIME);
 			
-			script.fcScript.abc2.generateTrackers(EST_WAIT);
+			abc2().generateTrackers(EST_WAIT);
 			abcLeaveGame();
 			script.fcScript.sleep(REACTION_TIME);
-			script.fcScript.abc2.generateTrackers(EST_WAIT);
+			abc2().generateTrackers(EST_WAIT);
 		}
 		
 		updateCurrentRock();
@@ -199,7 +206,7 @@ public class Mine extends Task
 		{
 			hasCheckedMoveToAnticipated = true;
 			
-			if(script.fcScript.abc2.shouldMoveToAnticipated())
+			if(abc2().shouldMoveToAnticipated())
 				moveToAnticipated();
 		}
 	}
@@ -230,14 +237,14 @@ public class Mine extends Task
 	
 	private void resetAbc()
 	{
-		script.fcScript.abc2.resetShouldHover();	
-		script.fcScript.abc2.resetShouldOpenMenu();
+		abc2().resetShouldHover();	
+		abc2().resetShouldOpenMenu();
 	}
 	
 	private void abcLeaveGame()
 	{
-		if(script.fcScript.abc2.shouldLeaveGame())
-			script.fcScript.abc2.leaveGame();
+		if(abc2().shouldLeaveGame())
+			abc2().leaveGame();
 	}
 	
 	private void doActionsWhileMining()
@@ -246,7 +253,7 @@ public class Mine extends Task
 		{
 			abcLeaveGame();
 			
-			script.fcScript.abc2.performTimedActions();
+			abc2().performTimedActions();
 			
 			hoverNextRock();
 		}

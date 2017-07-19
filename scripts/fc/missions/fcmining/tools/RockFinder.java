@@ -8,7 +8,9 @@ import org.tribot.api2007.Objects;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.types.RSObject;
 
+import scripts.fc.api.abc.PersistantABCUtil;
 import scripts.fc.api.skills.mining.MiningUtils;
+import scripts.fc.framework.data.Vars;
 import scripts.fc.missions.fcmining.FCMining;
 
 public class RockFinder implements Serializable
@@ -37,13 +39,14 @@ public class RockFinder implements Serializable
 	
 	public RSObject getCurrentRock(boolean abc)
 	{
+		PersistantABCUtil abc2 = Vars.get().get("abc2");
 		updateRocks();
 		
 		if(rocks.length == 0)
 			return null;
 		
 		else if(abc)
-			return (RSObject)script.fcScript.abc2.selectNextTarget((Positionable[])rocks);
+			return (RSObject)abc2.selectNextTarget((Positionable[])rocks);
 		
 		return rocks[0];
 	}
